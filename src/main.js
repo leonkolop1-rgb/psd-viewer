@@ -9,6 +9,7 @@ const translations = {
     chooseFile: 'Choose File',
     downloadPng: 'Download PNG',
     checkResolution: 'Check Resolution',
+    openNew: 'Open New PSD',
     unnamed: '(unnamed)',
   },
   he: {
@@ -17,6 +18,7 @@ const translations = {
     chooseFile: 'בחר קובץ',
     downloadPng: 'הורד PNG',
     checkResolution: 'בדוק רזולוציה',
+    openNew: 'פתח PSD חדש',
     unnamed: '(ללא שם)',
   },
 };
@@ -45,14 +47,31 @@ const canvas = document.getElementById('preview-canvas');
 const canvasContainer = document.getElementById('canvas-container');
 const downloadBtn = document.getElementById('download-btn');
 const resolutionBtn = document.getElementById('resolution-btn');
+const openNewBtn = document.getElementById('open-new-btn');
 const langSelect = document.getElementById('lang-select');
+const zoomControls = document.getElementById('zoom-controls');
+const zoomSlider = document.getElementById('zoom-slider');
+const zoomLabel = document.getElementById('zoom-label');
 
 let visibleIds = new Set();
 let totalLayerCount = 0;
 let currentPsd = null;
+let currentZoom = 1.0;
+let currentArtboardData = null;
+const MIN_ZOOM = 0.3;
+const MAX_ZOOM = 3.0;
+const ZOOM_STEP = 0.05;
 
 langSelect.addEventListener('change', () => setLanguage(langSelect.value));
 openBtn.addEventListener('click', () => fileInput.click());
+openNewBtn.addEventListener('click', () => fileInput.click());
+
+zoomSlider.addEventListener('input', () => setZoom(zoomSlider.value / 100));
+canvasContainer.addEventListener('wheel', e => {
+  if (!e.ctrlKey) return;
+  e.preventDefault();
+  setZoom(currentZoom + (e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP));
+}, { passive: false });
 fileInput.addEventListener('change', () => {
   if (fileInput.files[0]) loadFile(fileInput.files[0]);
 });
@@ -69,7 +88,41 @@ dropZone.addEventListener('drop', e => {
   if (file?.name.toLowerCase().endsWith('.psd')) loadFile(file);
 });
 
+function setZoom(zoom) {
+  currentZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
+  zoomLabel.textContent = `${Math.round(currentZoom * 100)}%`;
+  zoomSlider.value = Math.round(currentZoom * 100);
+  if (canvasContainer.classList.contains('artboard-mode')) {
+    applyArtboardZoom();
+  } else {
+    applySingleZoom();
+  }
+}
+
+function applySingleZoom() {
+  if (!currentPsd || canvas.hidden) return;
+  const pad = 12;
+  const containerW = canvasContainer.clientWidth - pad;
+  const containerH = canvasContainer.clientHeight - pad;
+  const fitScale = Math.min(containerW / currentPsd.width, containerH / currentPsd.height);
+  canvas.style.width = `${Math.round(currentPsd.width * fitScale * currentZoom)}px`;
+  canvas.style.height = `${Math.round(currentPsd.height * fitScale * currentZoom)}px`;
+}
+
+function applyArtboardZoom() {
+  if (!currentArtboardData) return;
+  const { rects, baseScale } = currentArtboardData;
+  canvasContainer.querySelectorAll('.artboard-wrapper').forEach((wrapper, i) => {
+    const { w, h } = rects[i];
+    const cvs = wrapper.querySelector('canvas');
+    cvs.style.width = `${Math.round(w * baseScale * currentZoom)}px`;
+    cvs.style.height = `${Math.round(h * baseScale * currentZoom)}px`;
+  });
+}
+
 async function loadFile(file) {
+  currentZoom = 1.0;
+  currentArtboardData = null;
   const psd = await parsePSD(file);
   currentPsd = psd;
   const allLayers = flattenLayers(psd.children ?? []);
@@ -92,6 +145,9 @@ async function loadFile(file) {
     resolutionBtn.hidden = false;
     showResolutionToast(psd.width, psd.height);
   }
+
+  zoomControls.hidden = false;
+  setZoom(1.0);
 }
 
 // --- Artboard mode ---
@@ -103,18 +159,31 @@ function getArtboards(psd) {
 function renderArtboards(artboards, psd) {
   canvasContainer.classList.add('artboard-mode');
   canvas.hidden = true;
-  // Remove any old artboard wrappers
   canvasContainer.querySelectorAll('.artboard-wrapper').forEach(el => el.remove());
 
-  for (const layer of artboards) {
+  const rects = artboards.map(layer => {
     const rect = layer.artboard?.rect ?? {
       top: layer.top ?? 0,
       left: layer.left ?? 0,
       bottom: layer.bottom ?? psd.height,
       right: layer.right ?? psd.width,
     };
-    const w = rect.right - rect.left;
-    const h = rect.bottom - rect.top;
+    return { rect, w: rect.right - rect.left, h: rect.bottom - rect.top };
+  });
+
+  // Compute a uniform scale so all artboards fit the visible area at once
+  const gap = 40;
+  const hPad = 64; // 32px padding each side
+  const vPad = 64 + 32; // 32px padding + label + gap
+  const availW = window.innerWidth - 200 - hPad - gap * (artboards.length - 1);
+  const availH = window.innerHeight - vPad;
+  const totalW = rects.reduce((sum, r) => sum + r.w, 0);
+  const maxH = Math.max(...rects.map(r => r.h));
+  const scale = Math.min(availW / totalW, availH / maxH);
+  currentArtboardData = { rects, baseScale: scale };
+
+  for (let i = 0; i < artboards.length; i++) {
+    const { rect, w, h } = rects[i];
 
     const wrapper = document.createElement('div');
     wrapper.className = 'artboard-wrapper';
@@ -122,6 +191,8 @@ function renderArtboards(artboards, psd) {
     const cvs = document.createElement('canvas');
     cvs.width = w;
     cvs.height = h;
+    cvs.style.width = `${Math.round(w * scale)}px`;
+    cvs.style.height = `${Math.round(h * scale)}px`;
 
     if (psd.canvas) {
       const ctx = cvs.getContext('2d');
@@ -151,6 +222,7 @@ function redraw() {
   if (!currentPsd) return;
   const allVisible = visibleIds.size === totalLayerCount;
   renderToCanvas(canvas, currentPsd, visibleIds, allVisible);
+  applySingleZoom();
 }
 
 // --- Resolution helpers ---

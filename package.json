@@ -5,14 +5,16 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "test": "vitest run"
+    "test": "vitest run",
+    "deploy": "npm run build && gh-pages -d dist"
   },
   "dependencies": {
     "ag-psd": "^30.0.0"
   },
   "devDependencies": {
+    "gh-pages": "^6.3.0",
+    "jsdom": "^24.0.0",
     "vite": "^5.0.0",
-    "vitest": "^1.6.0",
-    "jsdom": "^24.0.0"
+    "vitest": "^1.6.0"
   }
 }

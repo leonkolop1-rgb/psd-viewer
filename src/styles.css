@@ -17,12 +17,22 @@ body {
   overflow: hidden;
 }
 
-/* Language selector — fixed top left */
-#lang-selector {
+/* Top-left bar: logo + language selector */
+#top-bar {
   position: fixed;
   top: 10px;
   left: 10px;
   z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#site-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: block;
+  flex-shrink: 0;
 }
 #lang-select {
   background: #1a1a1a;
@@ -96,9 +106,35 @@ button:hover { opacity: 0.85; }
 }
 
 #preview-canvas {
-  max-width: 100%;
-  max-height: calc(100vh - 12px);
   display: block;
+}
+
+/* Zoom controls — fixed bottom-left */
+#zoom-controls {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+#zoom-slider {
+  width: 130px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+#zoom-label {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 38px;
+  text-align: right;
+  user-select: none;
 }
 
 /* Sidebar — right side */
@@ -150,6 +186,13 @@ button:hover { opacity: 0.85; }
 
 input[type="checkbox"] { accent-color: var(--accent); cursor: pointer; }
 
+#open-new-btn {
+  background: transparent;
+  color: #888;
+  border: 1px solid #333;
+}
+#open-new-btn:hover { color: var(--accent); border-color: var(--accent); opacity: 1; }
+
 /* Artboard mode */
 #canvas-container.artboard-mode {
   flex-direction: row;
@@ -170,8 +213,6 @@ input[type="checkbox"] { accent-color: var(--accent); cursor: pointer; }
 }
 
 .artboard-wrapper canvas {
-  max-height: calc(100vh - 100px);
-  width: auto;
   display: block;
 }
 

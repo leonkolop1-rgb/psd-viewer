@@ -4,14 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PSD Viewer</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/src/styles.css" />
 </head>
 <body>
-  <div id="lang-selector">
+  <div id="top-bar">
+    <img id="site-logo" src="/favicon.svg" alt="PSD Viewer" />
     <select id="lang-select">
       <option value="en">English</option>
       <option value="he">עברית</option>
     </select>
+  </div>
+
+  <div id="zoom-controls" hidden>
+    <input type="range" id="zoom-slider" min="30" max="300" step="5" value="100">
+    <span id="zoom-label">100%</span>
   </div>
 
   <div id="app">
@@ -29,6 +36,7 @@
         <div id="layer-tree"></div>
         <button id="resolution-btn" hidden data-i18n="checkResolution">Check Resolution</button>
         <button id="download-btn" data-i18n="downloadPng">Download PNG</button>
+        <button id="open-new-btn" data-i18n="openNew">Open New PSD</button>
       </aside>
     </div>
   </div>
