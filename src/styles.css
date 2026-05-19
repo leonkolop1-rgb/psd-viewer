@@ -150,6 +150,39 @@ button:hover { opacity: 0.85; }
 
 input[type="checkbox"] { accent-color: var(--accent); cursor: pointer; }
 
+/* Artboard mode */
+#canvas-container.artboard-mode {
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow-x: auto;
+  overflow-y: auto;
+  gap: 40px;
+  padding: 32px;
+}
+
+.artboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.artboard-wrapper canvas {
+  max-height: calc(100vh - 100px);
+  width: auto;
+  display: block;
+}
+
+.artboard-label {
+  color: #aaa;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
 /* Resolution toast */
 #resolution-toast {
   position: fixed;

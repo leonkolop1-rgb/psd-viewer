@@ -42,6 +42,7 @@ const fileInput = document.getElementById('file-input');
 const viewer = document.getElementById('viewer');
 const layerTreeEl = document.getElementById('layer-tree');
 const canvas = document.getElementById('preview-canvas');
+const canvasContainer = document.getElementById('canvas-container');
 const downloadBtn = document.getElementById('download-btn');
 const resolutionBtn = document.getElementById('resolution-btn');
 const langSelect = document.getElementById('lang-select');
@@ -51,9 +52,7 @@ let totalLayerCount = 0;
 let currentPsd = null;
 
 langSelect.addEventListener('change', () => setLanguage(langSelect.value));
-
 openBtn.addEventListener('click', () => fileInput.click());
-
 fileInput.addEventListener('change', () => {
   if (fileInput.files[0]) loadFile(fileInput.files[0]);
 });
@@ -72,10 +71,6 @@ dropZone.addEventListener('drop', e => {
 
 async function loadFile(file) {
   const psd = await parsePSD(file);
-  console.log('PSD size:', psd.width, 'x', psd.height, '| composite canvas:', !!psd.canvas);
-  (psd.children ?? []).forEach((l, i) =>
-    console.log(`  [${i}] "${l.name}" | canvas:${!!l.canvas} | group:${!!l.children}`)
-  );
   currentPsd = psd;
   const allLayers = flattenLayers(psd.children ?? []);
   totalLayerCount = allLayers.length;
@@ -85,9 +80,71 @@ async function loadFile(file) {
   viewer.hidden = false;
 
   buildLayerTree(layerTreeEl, psd.children ?? [], visibleIds, redraw, currentLang);
+
+  const artboards = getArtboards(psd);
+  if (artboards.length > 1) {
+    renderArtboards(artboards, psd);
+    resolutionBtn.hidden = true;
+    const existing = document.getElementById('resolution-toast');
+    if (existing) existing.remove();
+  } else {
+    renderSingle();
+    resolutionBtn.hidden = false;
+    showResolutionToast(psd.width, psd.height);
+  }
+}
+
+// --- Artboard mode ---
+
+function getArtboards(psd) {
+  return (psd.children ?? []).filter(l => l.artboard);
+}
+
+function renderArtboards(artboards, psd) {
+  canvasContainer.classList.add('artboard-mode');
+  canvas.hidden = true;
+  // Remove any old artboard wrappers
+  canvasContainer.querySelectorAll('.artboard-wrapper').forEach(el => el.remove());
+
+  for (const layer of artboards) {
+    const rect = layer.artboard?.rect ?? {
+      top: layer.top ?? 0,
+      left: layer.left ?? 0,
+      bottom: layer.bottom ?? psd.height,
+      right: layer.right ?? psd.width,
+    };
+    const w = rect.right - rect.left;
+    const h = rect.bottom - rect.top;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'artboard-wrapper';
+
+    const cvs = document.createElement('canvas');
+    cvs.width = w;
+    cvs.height = h;
+
+    if (psd.canvas) {
+      const ctx = cvs.getContext('2d');
+      ctx.drawImage(psd.canvas, rect.left, rect.top, w, h, 0, 0, w, h);
+    }
+
+    const label = document.createElement('div');
+    label.className = 'artboard-label';
+    label.textContent = `${w} × ${h}  |  ${aspectRatio(w, h)}`;
+
+    wrapper.appendChild(cvs);
+    wrapper.appendChild(label);
+    canvasContainer.appendChild(wrapper);
+  }
+}
+
+// --- Single canvas mode ---
+
+function renderSingle() {
+  canvasContainer.classList.remove('artboard-mode');
+  canvas.hidden = false;
+  canvasContainer.querySelectorAll('.artboard-wrapper').forEach(el => el.remove());
   redraw();
-  resolutionBtn.hidden = false;
-  showResolutionToast(psd.width, psd.height);
 }
 
 function redraw() {
@@ -95,6 +152,8 @@ function redraw() {
   const allVisible = visibleIds.size === totalLayerCount;
   renderToCanvas(canvas, currentPsd, visibleIds, allVisible);
 }
+
+// --- Resolution helpers ---
 
 const COMMON_RATIOS = [
   { label: '16:9',  value: 16 / 9  },
