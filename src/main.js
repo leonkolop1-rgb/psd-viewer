@@ -9,6 +9,7 @@ const viewer = document.getElementById('viewer');
 const layerTreeEl = document.getElementById('layer-tree');
 const canvas = document.getElementById('preview-canvas');
 const downloadBtn = document.getElementById('download-btn');
+const resolutionBtn = document.getElementById('resolution-btn');
 
 let visibleIds = new Set();
 let totalLayerCount = 0;
@@ -34,6 +35,10 @@ dropZone.addEventListener('drop', e => {
 
 async function loadFile(file) {
   const psd = await parsePSD(file);
+  console.log('PSD size:', psd.width, 'x', psd.height, '| composite canvas:', !!psd.canvas);
+  (psd.children ?? []).forEach((l, i) =>
+    console.log(`  [${i}] "${l.name}" | canvas:${!!l.canvas} | group:${!!l.children}`)
+  );
   currentPsd = psd;
   const allLayers = flattenLayers(psd.children ?? []);
   totalLayerCount = allLayers.length;
@@ -44,6 +49,7 @@ async function loadFile(file) {
 
   buildLayerTree(layerTreeEl, psd.children ?? [], visibleIds, redraw);
   redraw();
+  resolutionBtn.hidden = false;
   showResolutionToast(psd.width, psd.height);
 }
 
@@ -66,15 +72,28 @@ function showResolutionToast(w, h) {
 
   const toast = document.createElement('div');
   toast.id = 'resolution-toast';
-  toast.textContent = `${w} × ${h}  |  ${aspectRatio(w, h)}`;
+
+  const text = document.createElement('span');
+  text.textContent = `${w} × ${h}  |  ${aspectRatio(w, h)}`;
+
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕';
+  closeBtn.id = 'resolution-toast-close';
+  closeBtn.addEventListener('click', () => {
+    toast.classList.remove('visible');
+    setTimeout(() => toast.remove(), 300);
+  });
+
+  toast.appendChild(text);
+  toast.appendChild(closeBtn);
   document.body.appendChild(toast);
 
   setTimeout(() => toast.classList.add('visible'), 10);
-  setTimeout(() => {
-    toast.classList.remove('visible');
-    setTimeout(() => toast.remove(), 400);
-  }, 3500);
 }
+
+resolutionBtn.addEventListener('click', () => {
+  if (currentPsd) showResolutionToast(currentPsd.width, currentPsd.height);
+});
 
 downloadBtn.addEventListener('click', () => {
   canvas.toBlob(blob => {
