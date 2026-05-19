@@ -24,7 +24,7 @@ export function renderToCanvas(canvas, psd, visibleIds) {
   for (let i = leaves.length - 1; i >= 0; i--) {
     const layer = leaves[i];
     ctx.save();
-    ctx.globalAlpha = (layer.opacity ?? 255) / 255;
+    ctx.globalAlpha = layer.opacity ?? 1;
     ctx.drawImage(layer.canvas, layer.left ?? 0, layer.top ?? 0);
     ctx.restore();
   }
