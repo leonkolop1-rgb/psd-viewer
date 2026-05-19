@@ -35,11 +35,20 @@ body {
 }
 #lang-select:hover { border-color: var(--accent); }
 
-#app { height: 100vh; display: flex; }
+#app {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Viewer must fill full height/width when visible */
+#viewer {
+  align-self: stretch;
+}
 
 /* Drop zone — compact and centered */
 #drop-zone {
-  margin: auto;
   width: 280px;
   padding: 28px 36px;
   display: flex;
@@ -73,6 +82,7 @@ button:hover { opacity: 0.85; }
   flex: 1;
   display: flex;
   overflow: hidden;
+  width: 100%;
 }
 
 #canvas-container {
