@@ -96,11 +96,24 @@ function redraw() {
   renderToCanvas(canvas, currentPsd, visibleIds, allVisible);
 }
 
-function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+const COMMON_RATIOS = [
+  { label: '16:9',  value: 16 / 9  },
+  { label: '9:16',  value: 9  / 16 },
+  { label: '1:1',   value: 1        },
+  { label: '4:5',   value: 4  / 5  },
+  { label: '2:3',   value: 2  / 3  },
+  { label: '3:4',   value: 3  / 4  },
+];
 
 function aspectRatio(w, h) {
-  const d = gcd(w, h);
-  return `${w / d}:${h / d}`;
+  const actual = w / h;
+  let closest = COMMON_RATIOS[0];
+  let minDiff = Infinity;
+  for (const r of COMMON_RATIOS) {
+    const diff = Math.abs(actual - r.value);
+    if (diff < minDiff) { minDiff = diff; closest = r; }
+  }
+  return closest.label;
 }
 
 function showResolutionToast(w, h) {
