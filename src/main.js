@@ -2,6 +2,40 @@ import { parsePSD, flattenLayers } from './psd-parser.js';
 import { renderToCanvas } from './canvas-renderer.js';
 import { buildLayerTree } from './layer-tree.js';
 
+const translations = {
+  en: {
+    dragText: 'Drag PSD file here',
+    orText: 'or',
+    chooseFile: 'Choose File',
+    downloadPng: 'Download PNG',
+    checkResolution: 'Check Resolution',
+    unnamed: '(unnamed)',
+  },
+  he: {
+    dragText: 'גרור קובץ PSD לכאן',
+    orText: 'או',
+    chooseFile: 'בחר קובץ',
+    downloadPng: 'הורד PNG',
+    checkResolution: 'בדוק רזולוציה',
+    unnamed: '(ללא שם)',
+  },
+};
+
+let currentLang = 'en';
+
+function t(key) { return translations[currentLang][key]; }
+
+function setLanguage(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = translations[lang][el.dataset.i18n] ?? el.textContent;
+  });
+  if (currentPsd) {
+    buildLayerTree(layerTreeEl, currentPsd.children ?? [], visibleIds, redraw, currentLang);
+  }
+}
+
 const dropZone = document.getElementById('drop-zone');
 const openBtn = document.getElementById('open-btn');
 const fileInput = document.getElementById('file-input');
@@ -10,10 +44,13 @@ const layerTreeEl = document.getElementById('layer-tree');
 const canvas = document.getElementById('preview-canvas');
 const downloadBtn = document.getElementById('download-btn');
 const resolutionBtn = document.getElementById('resolution-btn');
+const langSelect = document.getElementById('lang-select');
 
 let visibleIds = new Set();
 let totalLayerCount = 0;
 let currentPsd = null;
+
+langSelect.addEventListener('change', () => setLanguage(langSelect.value));
 
 openBtn.addEventListener('click', () => fileInput.click());
 
@@ -47,7 +84,7 @@ async function loadFile(file) {
   dropZone.hidden = true;
   viewer.hidden = false;
 
-  buildLayerTree(layerTreeEl, psd.children ?? [], visibleIds, redraw);
+  buildLayerTree(layerTreeEl, psd.children ?? [], visibleIds, redraw, currentLang);
   redraw();
   resolutionBtn.hidden = false;
   showResolutionToast(psd.width, psd.height);

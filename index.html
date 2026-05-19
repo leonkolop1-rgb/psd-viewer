@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,22 +7,29 @@
   <link rel="stylesheet" href="/src/styles.css" />
 </head>
 <body>
+  <div id="lang-selector">
+    <select id="lang-select">
+      <option value="en">English</option>
+      <option value="he">עברית</option>
+    </select>
+  </div>
+
   <div id="app">
     <div id="drop-zone">
-      <p>גרור קובץ PSD לכאן</p>
-      <p>או</p>
-      <button id="open-btn">בחר קובץ</button>
+      <p data-i18n="dragText">Drag PSD file here</p>
+      <p data-i18n="orText">or</p>
+      <button id="open-btn" data-i18n="chooseFile">Choose File</button>
       <input type="file" id="file-input" accept=".psd" hidden />
     </div>
     <div id="viewer" hidden>
-      <aside id="sidebar">
-        <div id="layer-tree"></div>
-        <button id="resolution-btn" hidden>בדוק רזולוציה</button>
-        <button id="download-btn">הורד PNG</button>
-      </aside>
       <main id="canvas-container">
         <canvas id="preview-canvas"></canvas>
       </main>
+      <aside id="sidebar">
+        <div id="layer-tree"></div>
+        <button id="resolution-btn" hidden data-i18n="checkResolution">Check Resolution</button>
+        <button id="download-btn" data-i18n="downloadPng">Download PNG</button>
+      </aside>
     </div>
   </div>
   <script type="module" src="/src/main.js"></script>

@@ -1,20 +1,20 @@
-export function buildLayerTree(container, layers, visibleIds, onChange) {
+export function buildLayerTree(container, layers, visibleIds, onChange, lang = 'en') {
   container.innerHTML = '';
-  renderList(container, layers, visibleIds, onChange, 0);
+  renderList(container, layers, visibleIds, onChange, lang, 0);
 }
 
-function renderList(container, layers, visibleIds, onChange, depth) {
+function renderList(container, layers, visibleIds, onChange, lang, depth) {
   for (const layer of layers) {
-    container.appendChild(createItem(layer, visibleIds, onChange, depth));
+    container.appendChild(createItem(layer, visibleIds, onChange, lang, depth));
     if (layer.children) {
       const childWrap = document.createElement('div');
-      renderList(childWrap, layer.children, visibleIds, onChange, depth + 1);
+      renderList(childWrap, layer.children, visibleIds, onChange, lang, depth + 1);
       container.appendChild(childWrap);
     }
   }
 }
 
-function createItem(layer, visibleIds, onChange, depth) {
+function createItem(layer, visibleIds, onChange, lang, depth) {
   const item = document.createElement('div');
   item.className = 'layer-item';
   item.style.paddingLeft = `${6 + depth * 14}px`;
@@ -49,7 +49,7 @@ function createItem(layer, visibleIds, onChange, depth) {
 
   const name = document.createElement('span');
   name.className = 'layer-name';
-  name.textContent = layer.name || '(unnamed)';
+  name.textContent = layer.name || (lang === 'he' ? '(ללא שם)' : '(unnamed)');
   item.appendChild(name);
 
   return item;

@@ -16,54 +16,93 @@ body {
   overflow: hidden;
 }
 
+/* Language selector — fixed top left */
+#lang-selector {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+}
+#lang-select {
+  background: #1a1a1a;
+  color: #aaa;
+  border: 1px solid #333;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+}
+#lang-select:hover { border-color: var(--accent); }
+
 #app { height: 100vh; display: flex; }
 
-/* Drop zone */
+/* Drop zone — compact and centered */
 #drop-zone {
-  flex: 1;
+  margin: auto;
+  width: 280px;
+  padding: 28px 36px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
+  gap: 10px;
   border: 2px dashed #333;
-  margin: 40px;
   border-radius: 12px;
   transition: border-color 0.2s;
 }
 #drop-zone.drag-over { border-color: var(--accent); }
-#drop-zone p { color: #888; font-size: 14px; }
+#drop-zone p { color: #888; font-size: 13px; }
 
 /* Buttons */
 button {
   background: var(--accent);
   color: #000;
   border: none;
-  padding: 10px 20px;
+  padding: 9px 18px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s;
+  width: 100%;
 }
 button:hover { opacity: 0.85; }
 
-/* Viewer layout */
+/* Viewer layout — canvas left, sidebar RIGHT */
 #viewer {
   flex: 1;
   display: flex;
   overflow: hidden;
 }
 
+#canvas-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  padding: 6px;
+  min-width: 0;
+  min-height: 0;
+}
+
+#preview-canvas {
+  max-width: 100%;
+  max-height: calc(100vh - 12px);
+  display: block;
+}
+
+/* Sidebar — right side */
 #sidebar {
-  width: 220px;
-  min-width: 220px;
+  width: 200px;
+  min-width: 200px;
   background: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
-  padding: 12px;
-  gap: 12px;
+  padding: 10px;
+  gap: 8px;
   overflow: hidden;
+  order: 2;
 }
 
 #layer-tree {
@@ -81,7 +120,7 @@ button:hover { opacity: 0.85; }
   gap: 6px;
   padding: 4px 6px;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: 12px;
   user-select: none;
 }
 .layer-item:hover { background: var(--hover); }
@@ -101,24 +140,6 @@ button:hover { opacity: 0.85; }
 .group-toggle:hover { color: var(--accent); }
 
 input[type="checkbox"] { accent-color: var(--accent); cursor: pointer; }
-
-/* Canvas */
-#canvas-container {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: auto;
-  padding: 8px;
-  min-width: 0;
-  min-height: 0;
-}
-
-#preview-canvas {
-  max-width: 100%;
-  max-height: calc(100vh - 16px);
-  display: block;
-}
 
 /* Resolution toast */
 #resolution-toast {
@@ -154,7 +175,7 @@ input[type="checkbox"] { accent-color: var(--accent); cursor: pointer; }
   font-weight: 400;
   cursor: pointer;
   line-height: 1;
-  min-width: unset;
+  width: auto;
 }
 #resolution-toast-close:hover {
   color: var(--accent);
