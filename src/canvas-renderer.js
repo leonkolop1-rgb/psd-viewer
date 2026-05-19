@@ -13,13 +13,20 @@ export function collectVisibleLeaves(layers, visibleIds, parentVisible = true) {
   return result;
 }
 
-export function renderToCanvas(canvas, psd, visibleIds) {
+export function renderToCanvas(canvas, psd, visibleIds, allVisible = false) {
   const ctx = canvas.getContext('2d');
   canvas.width = psd.width;
   canvas.height = psd.height;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Collect visible leaves ordered top-to-bottom, then draw bottom-to-top.
+  // When all layers are visible, use the pre-rendered composite from ag-psd
+  // (includes text, adjustment, shape layers that have no individual canvas).
+  if (allVisible && psd.canvas) {
+    ctx.drawImage(psd.canvas, 0, 0);
+    return;
+  }
+
+  // Manual compositing for partial visibility (raster layers only).
   const leaves = collectVisibleLeaves(psd.children ?? [], visibleIds);
   for (let i = leaves.length - 1; i >= 0; i--) {
     const layer = leaves[i];

@@ -18,10 +18,7 @@ export function flattenLayers(layers) {
 
 export async function parsePSD(file) {
   const buffer = await file.arrayBuffer();
-  const psd = readPsd(new Uint8Array(buffer), {
-    skipCompositeImageData: true,
-    skipLayerImageData: false,
-  });
+  const psd = readPsd(buffer, { skipLayerImageData: false });
   if (psd.children) assignIds(psd.children);
   return psd;
 }

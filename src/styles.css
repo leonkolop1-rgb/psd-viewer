@@ -109,11 +109,36 @@ input[type="checkbox"] { accent-color: var(--accent); cursor: pointer; }
   align-items: center;
   justify-content: center;
   overflow: auto;
-  padding: 20px;
+  padding: 8px;
+  min-width: 0;
+  min-height: 0;
 }
 
 #preview-canvas {
   max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+  max-height: calc(100vh - 16px);
+  display: block;
+}
+
+/* Resolution toast */
+#resolution-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: #1a1a1a;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+#resolution-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
