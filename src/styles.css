@@ -36,19 +36,17 @@ body {
 #lang-select:hover { border-color: var(--accent); }
 
 #app {
+  position: relative;
   height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100vw;
 }
 
-/* Viewer must fill full height/width when visible */
-#viewer {
-  align-self: stretch;
-}
-
-/* Drop zone — compact and centered */
+/* Drop zone — absolutely centered on screen */
 #drop-zone {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 280px;
   padding: 28px 36px;
   display: flex;
@@ -77,12 +75,12 @@ button {
 }
 button:hover { opacity: 0.85; }
 
-/* Viewer layout — canvas left, sidebar RIGHT */
+/* Viewer — fills full screen */
 #viewer {
-  flex: 1;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
   display: flex;
   overflow: hidden;
-  width: 100%;
 }
 
 #canvas-container {
