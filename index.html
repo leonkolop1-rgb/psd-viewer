@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PSD Viewer</title>
+  <link rel="icon" type="image/svg+xml" href="/psd-viewer/favicon.svg" />
+  <script type="module" crossorigin src="/psd-viewer/assets/index-BlJOlCNU.js"></script>
+  <link rel="stylesheet" crossorigin href="/psd-viewer/assets/index-Ds9TkMzy.css">
+</head>
+<body>
+  <div id="top-bar">
+    <img id="site-logo" src="/psd-viewer/favicon.svg" alt="PSD Viewer" />
+    <select id="lang-select">
+      <option value="en">English</option>
+      <option value="he">עברית</option>
+    </select>
+  </div>
+
+  <div id="zoom-controls" hidden>
+    <input type="range" id="zoom-slider" min="30" max="300" step="5" value="100">
+    <span id="zoom-label">100%</span>
+  </div>
+
+  <div id="app">
+    <div id="drop-zone">
+      <p data-i18n="dragText">Drag PSD file here</p>
+      <p data-i18n="orText">or</p>
+      <button id="open-btn" data-i18n="chooseFile">Choose File</button>
+      <input type="file" id="file-input" accept=".psd" hidden />
+    </div>
+    <div id="viewer" hidden>
+      <main id="canvas-container">
+        <canvas id="preview-canvas"></canvas>
+      </main>
+      <aside id="sidebar">
+        <div id="layer-tree"></div>
+        <button id="resolution-btn" hidden data-i18n="checkResolution">Check Resolution</button>
+        <button id="download-btn" data-i18n="downloadPng">Download PNG</button>
+        <button id="open-new-btn" data-i18n="openNew">Open New PSD</button>
+      </aside>
+    </div>
+  </div>
+</body>
+</html>
